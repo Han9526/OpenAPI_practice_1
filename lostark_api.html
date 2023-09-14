@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+  .list__card{
+    list-style-type: none;
+    transition: border-color .2s;
+    display: block;
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+</style>
+<body>
+   
+      
+        <li class="list__card">
+                <div class="list__thumb"><img src="" alt=""></div>
+                <div class="list__subject" aria-label="제목">
+                    <span class="list__title"></span>
+                </div>
+                <div class="list__start__term"><strong></strong> </div>
+                <div class="list__end__term"><strong></strong> </div>
+        </li>
+     
+
+   
+
+
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+        <script>
+            
+        $(document).ready(function(){
+            $.ajax({
+          // 전송방식
+          method: "GET",
+
+          // 전송주소 
+          url :  "https://developer-lostark.game.onstove.com/news/events"   ,
+          
+          headers : {
+              // accept는  서버에게 클라이언트가 JSON 형식의 응답을 원한다는 것
+              accept : "application/json",
+              // authorization 인증방식 api키 같은 값을 입력한다
+              authorization: ""
+        
+            }})
+           
+      .done(function(Event_Page){
+
+        
+        $(".list__title").append($('<span>' + Event_Page[0].Title + '</span>'));
+        $(".list__thumb").append($('<div><img src="' + Event_Page[0].Thumbnail + '" alt="' + Event_Page[0].Title + '"></div>'));
+        $(".list__start__term").append($('<div><strong>'+Event_Page[0].EndDate+'</strong> </div>'));
+        $(".list__end__term").append($('<div><strong>'+Event_Page[0].StartDate+'</strong> </div>'));
+
+    
+      });
+    });
+        </script>
+</body>
+
+</html>

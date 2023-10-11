@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/script/lostArk_api.js"></script> 
+</head>
+
+<body>
+    <p></p>
+    <script>
+        $.ajax({
+            type: "GET",
+            url: CharacterUrl(),
+            dataType: 'json',
+            headers: {
+                'accept': 'application/json',
+                'authorization': APIkey() // 필요한 경우 JWT를 여기에 추가
+            },
+            success: function (data) {
+                const filteredData = data.filter(info => info.ServerName === '카단');
+                filteredData.forEach(function (info) {
+                    console.log("CharacterName: " + info.CharacterName);
+                    console.log("CharacterLevel: " + info.CharacterLevel);
+                    console.log("CharacterClassName: " + info.CharacterClassName);
+                    console.log("ItemMaxLevel: " + info.ItemMaxLevel);
+                  
+                });
+            },
+            error: function (error) {
+                console.error('오류:', error);
+            }
+        });
+    </script>
+</body>
+
+</html>

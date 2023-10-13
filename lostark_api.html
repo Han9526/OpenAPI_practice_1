@@ -1,86 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="
+https://cdn.jsdelivr.net/npm/reset-css@5.0.2/reset.min.css
+" rel="stylesheet">
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <!-- apikey.js -->
+    <script src="apikey async.js"></script>
+
 </head>
 <style>
-  .list__card {
-    list-style-type: none;
-    transition: border-color .2s;
-    display: block;
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    border: 1px solid #ddd;
-    text-align: center;
-  }
+    .profile-img {
+        width: 300px;
+    }
 </style>
 
 <body>
 
-
-  <li class="list__card">
-    <div class="list__thumb"><img src="" alt=""></div>
-    <div class="list__subject" aria-label="제목">
-      <span class="list__title"></span>
-    </div>
-    <div class="list__start__term"><strong></strong> </div>
-    <div class="list__end__term"><strong></strong> </div>
-  </li>
-
-
-
+    <input type="text" id="searchName" value="딱딱한식빵">
+    <button id="searchName-btn">검색</button>
+    <ul id="mainCharacter"></ul>
+    <h4>-----------------------------</h4>
+    <ul id="charactersList"></ul>
+    <script>
+       async function ProfileUrl(NickName) {
+    let encodeNickName = encodeURIComponent(NickName);
+    return encodeNickName;
+};
 
 
-  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-    crossorigin="anonymous"></script>
-  <script>
+function searchProfile() {
+    $('#searchName-btn').click(async function () {
+        let searchNameValue = $('#searchName').val();
+        let urlName = await ProfileUrl(searchNameValue);
 
+        $('#mainCharacter').empty();
+
+        $.ajax({
+            method: "GET",
+            url: `https://developer-lostark.game.onstove.com/armories/characters/${urlName}/profiles`,
+            dataType: 'json',
+            headers: {
+                'accept': 'application/json',
+                'authorization': APIKEY()
+            }
+        })
+            .done(async function (profileData) {
+
+                let addprofileData = `
+            <img src="${profileData.CharacterImage}" alt="" class="profile-img">
+            <li>${profileData.ServerName}</li>
+            <li>${profileData.CharacterName}</li>
+            <li>${profileData.ItemMaxLevel}</li>
+            <li>${profileData.CharacterClassName}</li>
+            `;
+                $('#mainCharacter').append(addprofileData);
+                  searchedlist(urlName, profileData.ServerName, searchNameValue);
+            });
+    })
+};
+
+ function searchedlist(url, Serversname, name) {
+    $('#charactersList').empty();
     $.ajax({
-      type: "GET",
-      url: CharacterUrl(),
-      dataType: 'json',
-      headers: {
-        'accept': 'application/json',
-        'authorization': APIkey() // 필요한 경우 JWT를 여기에 추가
-      },
-      success: function (data) {
-        // json 객체 배열
-        const filteredData = data.filter(info => info.ServerName === '카단');
-        // ItemMaxLevel type=string "2,000.00" 이런식으로저장
-        // ,제거
-        filteredData.forEach(function (info) {
-          info.ItemMaxLevel = parseFloat(info.ItemMaxLevel.replace(',', ''));
-        });
-        // string > float
-        filteredData.forEach(function (info) {
-          info.ItemMaxLevel = parseFloat(info.ItemMaxLevel);
-        });
-        // sort로 내림차순
-        filteredData.sort(function (a, b) {
-          return b.ItemMaxLevel - a.ItemMaxLevel;
-        });
+        method: "GET",
+        url: `https://developer-lostark.game.onstove.com/characters/${url}/siblings`,
+        dataType: 'json',
+        headers: {
+            'accept': 'application/json',
+            'authorization': APIKEY()
+        }
+    })
+        .done(function (listData) {
 
-        filteredData.forEach(function (info) {
-          const listItem = document.createElement('li');
-          listItem.innerHTML = `
-            <img src="/img/characterIMG/${info.CharacterName}.png" alt="이미지_설명" class="characterImg">
-            <p class="text_className"><img src="/img/occupationICON/${info.CharacterClassName}.png" alt="이미지_설명" class="profile-character-info__img"><span class = "CharacterName">${info.CharacterName}</span><span class = "CharacterLevel">Lv:${info.ItemMaxLevel}</span></p>
-        `;
+            let filterlistData = listData.filter((a) => a.ServerName === Serversname && a.CharacterName !== name); 
+            filterlistData.forEach((str) => {
+                str.ItemMaxLevel = parseFloat(str.ItemMaxLevel.replace(',', '')); // 
+            });
+            filterlistData.sort((a, b) => b.ItemMaxLevel - a.ItemMaxLevel);
 
-          characterList.appendChild(listItem);
-        });
-      },
-    });
+            filterlistData.forEach(element => {
 
-  </script>
+                let addcharactersList = `
+                --------------------<ul>
+        <li>${element.CharacterName}</li>
+        <li>${element.ItemMaxLevel}</li>
+        <li>${element.CharacterClassName}</li>
+        </ul>`;
+                $('#charactersList').append(addcharactersList);
+
+            });
+        })
+};
+searchProfile();
+    </script>
 </body>
 
 </html>
